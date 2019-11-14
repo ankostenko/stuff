@@ -266,7 +266,7 @@ int main(void)
 		{
 			if (nTimeFilledRow < 0)
 			{
-				nTimeFilledRow = 1000000000;
+				nTimeFilledRow = 500000000;
 
 				for (int i = nFieldHeight; i > 0; i--)
 				{
@@ -326,7 +326,7 @@ int main(void)
 			bKeyTrace[0] ? L"<-" : L"  ", bKeyTrace[1] ? L"down" : L"    ", bKeyTrace[2] ? L"->" : L"  ", bKeyTrace[3] ? L"space" : L"     ");
 
 
-		WriteConsoleOutputCharacter(hConsole, pScreen, nWindowHeight * nWindowWidht, {0, 0}, &dwBytesWitten);
+		WriteConsoleOutputCharacterW(hConsole, pScreen, nWindowHeight * nWindowWidht, {0, 0}, &dwBytesWitten);
 
 		// Frames ==========================
 
@@ -352,7 +352,7 @@ int main(void)
 
 	}
 
-	WriteConsoleOutputCharacter(hConsole, pScreen, nWindowHeight* nWindowWidht, { 0, 0 }, & dwBytesWitten);
+	WriteConsoleOutputCharacterW(hConsole, pScreen, nWindowHeight* nWindowWidht, { 0, 0 }, & dwBytesWitten);
 
 	Sleep(1000);
 
