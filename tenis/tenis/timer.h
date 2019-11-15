@@ -18,6 +18,8 @@ struct Timer
 	bool m_frameLock;
 	float m_frameLock_time = 0.016777;
 
+	float elapsed{0};
+
 
 	inline Timer(bool frame_lock = false): m_frameLock(frame_lock)
 	{
@@ -29,7 +31,7 @@ struct Timer
 		high_resolution_clock::time_point now = high_resolution_clock::now();
 		duration<float>	dur = duration_cast<duration<float>>(now - privius);
 		privius = now;
-		float elapsed = dur.count();
+		elapsed = dur.count();
 		m_Frames++;
 
 		if (m_frameLock && elapsed < m_frameLock_time)

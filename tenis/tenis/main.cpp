@@ -5,9 +5,36 @@
 #include "input.h"
 #include "timer.h"
 
+#define PI 3.14159265359
 
 #define VK_W 0x57
 #define VK_S 0x53
+
+struct Ball
+{
+	float pos_x{0};
+	float pos_y{0};
+	float angle{0};
+
+	float new_pos_x{0};
+	float new_pos_y{0};
+
+	float speed_x{0.6};
+	float speed_y{0};
+	float speed_dif{0.015f};
+
+	float w{0.01f};
+	float h{0.01f};
+
+	void start_position()
+	{
+		angle = 0;
+		pos_x = new_pos_x = 0;
+		pos_y = new_pos_y = 0;
+		speed_x = 0.6;
+		speed_y = 0;
+	}
+};
 
 bool running = true;
 
@@ -71,6 +98,40 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	HDC hdc = GetDC(window);
 
 
+	// Game vars --------------------------------
+	// arena size
+	float arena_h = 0.46f;
+	float arena_w = 0.77f;
+
+	// player size
+	float player_w = 0.015f;
+	float player_h = 0.13f;
+
+	// speed
+	float max_speed = 5;
+	float p1_speed = 0;
+	float p2_speed = 0;
+	float speed_dif = 0.02f;
+
+	// position
+	const float p1_pos_x = 0.74f;
+	const float p2_pos_x = -p1_pos_x;
+
+	float p1_pos_y = 0;
+	float p2_pos_y = 0;
+
+	float p1_pos_new = 0;
+	float p2_pos_new = 0;
+
+	// ball
+	Ball ball;
+
+	// points
+	int p1_points = 0;
+	int p2_points = 0;
+
+
+	// Game Loop --------------------------------
 	Input input;
 	Timer timer;
 
@@ -132,36 +193,111 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 		}
 
-		// clear screen / too much costs
-		//draw_rect(0, 0, 1, 1, Color(0, 0, 0));
+		// Simulate -----------------------------------
 
-		// draw fiel7
-		draw_rect(0, 0, 0.46, 0.75, Color(255, 150, 0));
-
-		// Simulate
-		static float p1_pos_y = 0;
-
+		// speed p1
 		if (input.is_pressed[P1_UP])
-			p1_pos_y += .001;
+			p1_speed = p1_speed > max_speed ? p1_speed : p1_speed + speed_dif;
+		else if (input.is_pressed[P1_DOWN])
+			p1_speed = p1_speed < -max_speed ? p1_speed : p1_speed - speed_dif;
+		else
+			if (fabs(p1_speed) < 0.01f)
+				p1_speed = p1_speed > 0 ? p1_speed - speed_dif : p1_speed + speed_dif;
+			else
+				p1_speed = 0;
 
-		if (input.is_pressed[P1_DOWN])
-			p1_pos_y -= .001;
-
-		
-		static float p2_pos_y = 0;
-
+		// speed p2
 		if (input.is_pressed[P2_UP])
-			p2_pos_y += .001;
+			p2_speed += speed_dif;
+		else if (input.is_pressed[P2_DOWN])
+			p2_speed -= speed_dif;
+		else
+			if (fabs(p2_speed) > 0.01f)
+				p2_speed = p2_speed > 0 ? p2_speed - speed_dif : p2_speed + speed_dif;
+			else
+				p2_speed = 0;
 
-		if (input.is_pressed[P2_DOWN])
-			p2_pos_y -= .001;
+
+		p1_pos_new = p1_pos_y + p1_speed * timer.elapsed;
+		p2_pos_new = p2_pos_y + p2_speed * timer.elapsed;
+
+		// collission detection
+		if (fabs(p1_pos_new) < arena_h - player_h)
+			p1_pos_y = p1_pos_new;
+		else
+			p1_speed *= -1. / 4;
 
 
+		if (fabs(p2_pos_new) < arena_h - player_h)
+			p2_pos_y = p2_pos_new;
+		else
+			p2_speed *= -1. / 4;
 
 
-		draw_rect( 0 + p1_pos_y, 0.4, .1, .1, Color(255, 0, 0));
-		draw_rect(0 + p2_pos_y, -0.4, .1, .1, Color(255, 0, 0));
+		// ball
+		// new pos
+		ball.new_pos_x += ball.speed_x * timer.elapsed;
+		ball.new_pos_y += ball.speed_y * timer.elapsed;
 
+		// ball: wall collission detection
+		if (fabs(ball.new_pos_y) > arena_h - ball.h)
+			ball.speed_y *= -1;
+		else
+		{
+			ball.pos_x = ball.new_pos_x;
+			ball.pos_y = ball.new_pos_y;
+		}
+
+		// ball: player collision detection
+		if (p1_pos_x - ball.new_pos_x < ball.w + player_w && fabs(p1_pos_y - ball.new_pos_y) < ball.h + player_h)
+		{
+			ball.speed_x *= -1;
+			ball.speed_y += p1_speed / 4;
+		}
+
+		if (ball.new_pos_x - p2_pos_x < ball.w + player_w && fabs(ball.new_pos_y - p2_pos_y) < ball.h + player_h)
+		{
+			ball.speed_x *= -1;
+			ball.speed_y += p2_speed / 4;
+		}
+
+
+		// Point handler
+		if (ball.new_pos_x > arena_w)
+		{
+			ball.start_position();
+			p2_points++;
+		}
+		
+		if (ball.new_pos_x < -arena_w)
+		{
+			ball.start_position();
+			p1_points++;
+		}
+		 
+
+		// Draw ----------------------------------------
+
+		// clear screen / too much costs
+		draw_rect(0, 0, 1, 1, Color(70, 50, 255));
+
+		// draw arena
+		draw_rect(0, 0, arena_h, arena_w, Color(255, 150, 0));
+
+
+		// draw players
+		draw_rect(p1_pos_y, p1_pos_x, player_h, player_w, Color(255, 0, 0));
+		draw_rect(p2_pos_y, p2_pos_x, player_h, player_w, Color(255, 0, 0));
+
+		// draw ball
+		draw_rect(ball.pos_y, ball.pos_x, ball.h, ball.w, Color(255, 0, 255));
+
+		// draw points
+		for (int i = 0; i < p1_points; i++)
+			draw_rect(0.48, 0.75 - i * 0.03, 0.01, 0.01, Color(255, 0, 0));
+
+		for (int i = 0; i < p2_points; i++)
+			draw_rect(0.48, -0.75 + i * 0.03, 0.01, 0.01, Color(255, 200, 0));
 
 		// Render
 		StretchDIBits(hdc, 0, 0, surface.width, surface.height, 0, 0, surface.width, surface.height, surface.memory, &surface.bitmap_info, DIB_RGB_COLORS, SRCCOPY);
