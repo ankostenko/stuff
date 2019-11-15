@@ -5,6 +5,10 @@
 #include "input.h"
 #include "timer.h"
 
+
+#define VK_W 0x57
+#define VK_S 0x53
+
 bool running = true;
 
 
@@ -100,6 +104,21 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 								input.is_pressed[P1_DOWN] = (!input.change[P1_DOWN] && input.is_down[P1_DOWN]) ||
 															(input.change[P1_DOWN] && input.is_down[P1_DOWN]);
 							} break;
+
+							case VK_W:
+							{
+								input.change[P2_UP] = is_down != input.is_down[P2_UP];
+								input.is_down[P2_UP] = is_down;
+								input.is_pressed[P2_UP] = (!input.change[P2_UP] && input.is_down[P2_UP]) ||
+									(input.change[P2_UP] && input.is_down[P2_UP]);
+							} break;
+							case VK_S:
+							{
+								input.change[P2_DOWN] = is_down != input.is_down[P2_DOWN];
+								input.is_down[P2_DOWN] = is_down;
+								input.is_pressed[P2_DOWN] = (!input.change[P2_DOWN] && input.is_down[P2_DOWN]) ||
+									(input.change[P2_DOWN] && input.is_down[P2_DOWN]);
+							} break;
 						}
 					}
 				default:
@@ -120,17 +139,29 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		draw_rect(0, 0, 0.46, 0.75, Color(255, 150, 0));
 
 		// Simulate
-		static float pos_y = 0;
+		static float p1_pos_y = 0;
 
 		if (input.is_pressed[P1_UP])
-			pos_y += .001;
+			p1_pos_y += .001;
 
 		if (input.is_pressed[P1_DOWN])
-			pos_y -= .001;
+			p1_pos_y -= .001;
+
+		
+		static float p2_pos_y = 0;
+
+		if (input.is_pressed[P2_UP])
+			p2_pos_y += .001;
+
+		if (input.is_pressed[P2_DOWN])
+			p2_pos_y -= .001;
 
 
 
-		draw_rect( 0 + pos_y, 0, .1, .1, Color(255, 0, 0));
+
+		draw_rect( 0 + p1_pos_y, 0.4, .1, .1, Color(255, 0, 0));
+		draw_rect(0 + p2_pos_y, -0.4, .1, .1, Color(255, 0, 0));
+
 
 		// Render
 		StretchDIBits(hdc, 0, 0, surface.width, surface.height, 0, 0, surface.width, surface.height, surface.memory, &surface.bitmap_info, DIB_RGB_COLORS, SRCCOPY);
