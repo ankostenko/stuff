@@ -12,7 +12,7 @@ class vector
 private:
 	using type = T;
 	using pinter = T*;
-	size_t elem__size = sizeof(type);
+	size_t elem_size = sizeof(type);
 	
 	type* buffer{nullptr};
 	size_t _size{0};
@@ -23,10 +23,10 @@ private:
 		size_t new_capacity = _capacity * 2 + 1;
 		new_capacity = MAX(new_size, new_capacity);
 		assert(new_capacity > _capacity);
-		type* new_buffer = static_cast<type*>(::operator new(new_capacity * elem__size));
+		type* new_buffer = static_cast<type*>(::operator new(new_capacity * elem_size));
 		if (buffer)
 		{
-			memmove(new_buffer, buffer, elem__size * _size);
+			memmove(new_buffer, buffer, elem_size * _size);
 			::operator delete(buffer);
 		}
 		buffer = new_buffer;
@@ -72,7 +72,7 @@ public:
 	{
 		assert(i >= 0 && i < size);
 		buffer[i].~type();
-		memmove(buffer + i, buffer + i + 1, elem__size * (_size - i));
+		memmove(buffer + i, buffer + i + 1, elem_size * (_size - i));
 	}
 
 	inline void reserve(size_t reserve_size)
