@@ -3,9 +3,6 @@
 #include <stdint.h>
 #include <algorithm>
 
-#include "render_state.h"
-#include "geometry.h"
-
 #undef max
 #undef min
 
@@ -61,7 +58,6 @@ inline void drawLine(int x, int y, int x2, int y2, Color color) {
 		drawPixel(x, j >> 16, color);
 		j -= decInc;
 	}
-
 }
 
 inline void drawSquare(int x, int y, int x2, int y2, Color color) {
@@ -71,7 +67,6 @@ inline void drawSquare(int x, int y, int x2, int y2, Color color) {
 	drawLine(x + (y - y2), y + (x2 - x), x2 + (y - y2), y2 + (x2 - x), color);
 }
 
-
 inline void drawRect(int x, int y, int x2, int y2, Color color) {
 	drawLine(x, y, x2, y, color);
 	drawLine(x2, y, x2, y2, color);
@@ -79,7 +74,35 @@ inline void drawRect(int x, int y, int x2, int y2, Color color) {
 	drawLine(x, y2, x, y, color);
 }
 
-void draw_trgl(Vec3f* pts, Color color)
+inline void draw_filled_rect(int x0, int y0, int x1, int y1, Color color)
+{
+	for (int y = y0; y < y1; y++)
+		for (int x = x0; x < x1; x++)
+			surface.memory[y * surface.width + x] = color.whole;
+}
+
+inline void draw_filled_circle(int X, int Y, int radius, Color color)
+{
+	//int min_y = MAX(Y - radius, 0);
+	//int max_y = MIN(Y + radius, surface.height);
+	//int min_x = MAX(X - radius, 0);
+	//int max_x = MIN(X + radius, surface.width);
+
+	for (int y = -radius; y <= radius; y++)
+	{
+		for (int x = -radius; x <= radius; x++)
+		{
+			// end of user area
+			if (Y + y < 0 || Y + y > surface.height - 1) continue;
+			if (X + x < 0 || X + x > surface.width - 1) continue;
+
+			if (x * x + y * y <= radius * radius)
+				surface.memory[(Y + y) * surface.width + X + x] = color.whole;
+		}
+	}
+}
+
+inline void draw_triangle(Vec3f* pts, Color color)
 {
 	if (pts[0].y == pts[1].y && pts[0].y == pts[2].y) return; // i don't care about degenerate triangles
 	if (pts[0].y > pts[1].y) { std::swap(pts[0], pts[1]); }
