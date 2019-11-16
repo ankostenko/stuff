@@ -96,7 +96,8 @@ inline void draw_filled_circle(int X, int Y, int radius, Color color)
 			if (Y + y < 0 || Y + y > surface.height - 1) continue;
 			if (X + x < 0 || X + x > surface.width - 1) continue;
 
-			if (x * x + y * y <= radius * radius)
+			// + 1 make it more slightly
+			if (x * x + y * y <= radius * radius + 1)
 				surface.memory[(Y + y) * surface.width + X + x] = color.whole;
 		}
 	}
@@ -124,7 +125,7 @@ inline void draw_triangle(Vec3f* pts, Color color)
 	{
 		for (P.y = bot_left.y; P.y < top_right.y; P.y += 1.0f)
 		{
-			Vert3f bar;
+			Vec3f bar;
 			if (barycentric(pts[0], pts[1], pts[2], P, &bar))
 				surface.memory[P.y * surface.width + P.x] = color.whole;
 		}

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <array>
 
 bool running = true;
 
@@ -7,6 +8,7 @@ bool running = true;
 #include "draw.cpp"
 #include "timer.cpp"
 #include "mouse_input.cpp"
+#include "line.cpp"
 
 
 LRESULT CALLBACK win_callback(HWND hwnd, UINT uMsg, WPARAM wparam, LPARAM lParam)
@@ -64,14 +66,28 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	RegisterClass(&window_class);
 
 	// create window
-	HWND window = CreateWindow(window_class.lpszClassName, "Game!!!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
+	HWND window = CreateWindow(window_class.lpszClassName, "Game", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
 	HDC hdc = GetDC(window);
+
+	// shapes
+	/*std::array<Line, 10> lines
+	{
+		Line(Vert2i(0, 0), Vec2i(1,0), surface.width - 1),
+
+	};*/
+
+	Line line(Vert2f(0, 0), Vec2f(1, 0).normalize(), surface.width - 1);
+	Line line1(Vert2f(0, 0), Vec2f(0, 1).normalize(), surface.height - 1);
+	Line line2(Vert2f(surface.width - 1, 0), Vec2f(0, 1).normalize(), surface.height - 1);
+	Line line3(Vert2f(0, surface.height - 1), Vec2f(1, 0).normalize(), surface.width - 1);
+
+
 
 	// mouse input
 	Mouse_Input mouse_input;
 
-
-	Timer timer;
+	// timer
+	Timer timer(true);
 	while (running)
 	{
 		// Input
@@ -105,10 +121,31 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 			}
 		}
 
-		// Simulate
-		if (mouse_input.buttons[LBUTTON].is_dawn)
-			draw_filled_circle(mouse_input.x, mouse_input.y, 30,Color(255, 0, 0));
+		// Simulate -----------------------------------------------------------
+		
 
+
+		// Draw ---------------------------------------------------------------
+		
+		// clear screen
+		draw_filled_rect(0, 0, surface.width, surface.height, Color(0, 0, 0));
+
+		// draw field rect
+		//drawLine(0, 0, surface.width-1, 0, Color(255, 255, 255));
+		//drawLine(0, 0, 0, surface.height-1, Color(255, 255, 255));
+		//drawLine(0, surface.height-1, surface.width-1, surface.height-1, Color(255, 255, 255));
+		//drawLine(surface.width-1, 0, surface.width-1, surface.height-1, Color(255, 255, 255));
+
+		// draw some shapes
+
+
+		line.draw(Color(255, 255, 255));
+		line1.draw(Color(255, 255, 255));
+		line2.draw(Color(255, 255, 255));
+		line3.draw(Color(255, 255, 255));
+
+		// draw mouse point
+		draw_filled_circle(mouse_input.x, mouse_input.y, 5, Color(255, 0, 0));
 
 
 		// timer

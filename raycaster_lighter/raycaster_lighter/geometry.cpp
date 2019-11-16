@@ -13,19 +13,41 @@ struct Vec2
 	inline Vec2() : x(0), y(0) {}
 	inline Vec2(T x, T y) : x(x), y(y) {}
 
-	inline Vec2<T>& operator + (Vec2<T> other)
+	inline Vec2<T> operator + (Vec2<T> other)
 	{
-		x += other.x;
-		y += other.y;
+		return 	Vec2<T> (x + other.x, y + other.y);
+	}
+
+	inline Vec2<T> operator * (float scalar)
+	{
+		return	Vec2<T>(x * scalar, y * scalar);
+	}
+
+	Vec2<T>& operator += (Vec2<T> point)
+	{
+		x += point.x;
+		y += point.y;
 		return *this;
 	}
 
-	inline Vec2<T>& operator * (float scalar)
+	Vec2<T>& operator *= (T lenght)
 	{
-		x *= scalar;
-		y *= scalar;
+		x *= lenght;
+		y *= lenght;
 		return *this;
 	}
+
+	float norm()
+	{
+		return std::sqrt(x * x + y * y);
+	}
+
+	inline Vec2<T>& normalize()
+	{
+		*this = (*this) * (1.0f / norm());
+		return *this;
+	}
+
 
 	inline T& operator [] (int inx)
 	{
@@ -45,6 +67,8 @@ struct Vec3
 
 	inline Vec3() : x(0), y(0), z(0) {}
 	inline Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
+	template <typename U>
+	inline Vec3(Vec2<U> v) : x(v.x), y(v.y), z(0) {}
 
 	inline Vec3<T>& operator + (Vec3<T> other)
 	{
@@ -130,8 +154,6 @@ template <typename T>
 Vec3<T> cross(Vec3<T> v1, Vec3<T> v2) {
 	return Vec3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
 }
-
-
 
 
 inline bool barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3i P, Vec3f* out) {
