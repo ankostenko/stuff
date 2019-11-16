@@ -201,7 +201,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		else if (input.is_pressed[P1_DOWN])
 			p1_speed = p1_speed < -max_speed ? p1_speed : p1_speed - speed_dif;
 		else
-			if (fabs(p1_speed) < 0.01f)
+			if (fabs(p1_speed) > 0.01f)
 				p1_speed = p1_speed > 0 ? p1_speed - speed_dif : p1_speed + speed_dif;
 			else
 				p1_speed = 0;
