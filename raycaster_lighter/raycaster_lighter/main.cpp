@@ -2,6 +2,8 @@
 #include <array>
 #include <vector>
 
+// Global varibals
+#define PI 3.14159265359
 bool running = true;
 
 #include "render_state.cpp"
@@ -77,7 +79,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	add_some_shapes(shapes);
 
 	// ray
-	Line ray(Vert2f(surface.width / 2, surface.height / 2), Vec2f(), 200);
+	//Line ray(Vert2f(surface.width / 2, surface.height / 2), Vec2f(), 200);
+
+	std::vector<Line> rays;
+	rays.reserve(50);
+	for (int i = 0; i < 50; i++)
+	{
+		rays.push_back(Line(Vert2f(), Vec2f(cosf(i * 2*PI / 50), sinf(i * 2*PI / 50)), 1));
+	}
 
 	// mouse input
 	Mouse_Input mouse;
@@ -92,78 +101,86 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		{
 			switch (msg.message)
 			{
-				case WM_MOUSEMOVE:
-				{
-					mouse.x = int(LOWORD(msg.lParam));
-					mouse.y = surface.height - int(HIWORD(msg.lParam));
-				}break;
-				case WM_LBUTTONDOWN:
-				{
-					mouse.buttons[LBUTTON].change = !mouse.buttons[LBUTTON].is_dawn;
-					mouse.buttons[LBUTTON].is_dawn = true;
-				}break;
-				case WM_LBUTTONUP:
-				{
-					mouse.buttons[LBUTTON].change = mouse.buttons[LBUTTON].is_dawn;
-					mouse.buttons[LBUTTON].is_dawn = false;
-				}break;
-				default:
-				{
-					TranslateMessage(&msg);
-					DispatchMessage(&msg);
-				}
+			case WM_MOUSEMOVE:
+			{
+				mouse.x = int(LOWORD(msg.lParam));
+				mouse.y = surface.height - int(HIWORD(msg.lParam));
+			}break;
+			case WM_LBUTTONDOWN:
+			{
+				mouse.buttons[LBUTTON].change = !mouse.buttons[LBUTTON].is_dawn;
+				mouse.buttons[LBUTTON].is_dawn = true;
+			}break;
+			case WM_LBUTTONUP:
+			{
+				mouse.buttons[LBUTTON].change = mouse.buttons[LBUTTON].is_dawn;
+				mouse.buttons[LBUTTON].is_dawn = false;
+			}break;
+			default:
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 			}
 		}
 
 		// Simulate -----------------------------------------------------------
 		if (surface.width == 0 || surface.height == 0) continue; // window is minimazed
-		
+
 
 		// calturate the ray
-		Vec2f dir(mouse.x - ray.pos.x, mouse.y - ray.pos.y);
-		ray.dir = dir.normalize();
+		//Vec2f dir(mouse.x - ray.pos.x, mouse.y - ray.pos.y);
+		//ray.dir = dir.normalize();
 
-		// segment of shape: coef of lines intersection 0 < T2 < 1
-		float T2 = 2000;
-		// ray: T1 > 0
-		float T1 = 680;
 
-		for (Line line : shapes)
+		for (Line& ray : rays)
 		{
-			float new_T2 = (ray.dir.x * (line.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - line.pos.x)) /
-										(line.dir.x * ray.dir.y - line.dir.y * ray.dir.x);
+			ray.pos.x = mouse.x, ray.pos.y = mouse.y;
 
-			// clossest srgment
-			if (new_T2 > 0 && new_T2 < line.lenght)
+			// segment of shape: coef of lines intersection 0 < T2 < 1
+			float T2 = 2000;
+			// ray: T1 > 0
+			float T1 = 2000;
+
+			for (Line line : shapes)
 			{
-				T2 = new_T2;
-				float new_T1 = (line.pos.x + line.dir.x * T2 - ray.pos.x) / ray.dir.x;
-				if (new_T1 < T1 && new_T1 > 0)
-					T1 = new_T1;
-			}
-		}
+				float new_T2 = (ray.dir.x * (line.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - line.pos.x)) /
+					(line.dir.x * ray.dir.y - line.dir.y * ray.dir.x);
 
-		ray.lenght = T1;
+				// clossest srgment
+				if (new_T2 > 0 && new_T2 < line.lenght)
+				{
+					T2 = new_T2;
+					float new_T1 = (line.pos.x + line.dir.x * T2 - ray.pos.x) / ray.dir.x;
+					if (new_T1 < T1 && new_T1 > 0)
+						T1 = new_T1;
+				}
+			}
+
+			ray.lenght = T1;
+		}
 
 
 
 		// Draw ---------------------------------------------------------------
-		
+
 		// clear screen
 		draw_filled_rect(0, 0, surface.width, surface.height, Color(0, 0, 0));
 
 		// draw shapes
-		for (Line line: shapes)
+		for (Line line : shapes)
 			line.draw(Color(255, 255, 255));
 
 		// draw mouse point
-		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
+		//draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
 		// draw ray
-		ray.draw();
-		// intersection point
-		draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
-
+		for (Line ray : rays)
+		{
+			ray.draw();
+			// intersection point
+			draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+		}
 
 		// timer
 		timer.update();
