@@ -7,7 +7,7 @@ struct Line
 
 	inline Line(Vert2f pos, Vec2f dir, int lenght) : pos(pos), dir(dir), lenght(lenght) {}
 
-	void draw(Color color)
+	void draw(Color color = Color(255, 255, 255))
 	{
 		
 		Vec2f second_point = pos + dir * lenght;

@@ -76,8 +76,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	shapes.reserve(30);
 	add_some_shapes(shapes);
 
+	// ray
+	Line ray(Vert2f(surface.width / 2, surface.height / 2), Vec2f(), 0);
+
 	// mouse input
-	Mouse_Input mouse_input;
+	Mouse_Input mouse;
 
 	// timer
 	Timer timer(true);
@@ -91,18 +94,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 			{
 				case WM_MOUSEMOVE:
 				{
-					mouse_input.x = int(LOWORD(msg.lParam));
-					mouse_input.y = surface.height - int(HIWORD(msg.lParam));
+					mouse.x = int(LOWORD(msg.lParam));
+					mouse.y = surface.height - int(HIWORD(msg.lParam));
 				}break;
 				case WM_LBUTTONDOWN:
 				{
-					mouse_input.buttons[LBUTTON].change = !mouse_input.buttons[LBUTTON].is_dawn;
-					mouse_input.buttons[LBUTTON].is_dawn = true;
+					mouse.buttons[LBUTTON].change = !mouse.buttons[LBUTTON].is_dawn;
+					mouse.buttons[LBUTTON].is_dawn = true;
 				}break;
 				case WM_LBUTTONUP:
 				{
-					mouse_input.buttons[LBUTTON].change = mouse_input.buttons[LBUTTON].is_dawn;
-					mouse_input.buttons[LBUTTON].is_dawn = false;
+					mouse.buttons[LBUTTON].change = mouse.buttons[LBUTTON].is_dawn;
+					mouse.buttons[LBUTTON].is_dawn = false;
 				}break;
 				default:
 				{
@@ -116,20 +119,26 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		if (surface.width == 0 || surface.height == 0) continue; // window is minimazed
 		
 
+		// calturate the ray
+		Vec2f dir(mouse.x - ray.pos.x, mouse.y - ray.pos.y);
+		ray.lenght = dir.norm();
+		ray.dir = dir.normalize();
+
 
 		// Draw ---------------------------------------------------------------
 		
 		// clear screen
 		draw_filled_rect(0, 0, surface.width, surface.height, Color(0, 0, 0));
 
-		
 		// draw shapes
 		for (Line line: shapes)
 			line.draw(Color(255, 255, 255));
 
 		// draw mouse point
-		draw_filled_circle(mouse_input.x, mouse_input.y, 5, Color(255, 0, 0));
+		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
+		// draw ray
+		ray.draw();
 
 		// timer
 		timer.update();
