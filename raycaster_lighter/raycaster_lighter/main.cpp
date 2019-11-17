@@ -92,7 +92,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	Mouse_Input mouse;
 
 	// timer
-	Timer timer(true);
+	Timer timer(false);
 	while (running)
 	{
 		// Input
@@ -175,18 +175,45 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		//draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
 		// draw ray
-		for (Line ray : rays)
+		//for (Line ray : rays)
+		//{
+		//	ray.draw();
+		//	// intersection point
+		//	draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+		//}
+
+		// draw triangle
+		for (int i = 0; i < rays.size() - 1; i++)
 		{
-			ray.draw();
-			// intersection point
-			draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+			Vec3f pts[]{ rays[i].pos, 
+						 Vec2f(rays[i].pos.x + rays[i].dir.x * rays[i].lenght, rays[i].pos.y + rays[i].dir.y * rays[i].lenght),
+						 Vec2f(rays[i + 1].pos.x + rays[i + 1].dir.x * rays[i + 1].lenght, rays[i + 1].pos.y + rays[i + 1].dir.y * rays[i + 1].lenght) };
+
+			draw_triangle(pts, Color(255, 255, 255));
 		}
+
+		// for end and begin triangle
+		{
+			Vec3f pts[]{ rays[0].pos,
+				Vec2f(rays[rays.size() - 1].pos.x + rays[rays.size() - 1].dir.x * rays[rays.size() - 1].lenght, rays[rays.size() - 1].pos.y + rays[rays.size() - 1].dir.y * rays[rays.size() - 1].lenght),
+					 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght)
+					 };
+
+			draw_triangle(pts, Color(255, 255, 255));
+
+		}
+
 
 		// timer
 		timer.update();
 
 		// Render
 		StretchDIBits(hdc, 0, 0, surface.width, surface.height, 0, 0, surface.width, surface.height, surface.memory, &surface.bitmap_info, DIB_RGB_COLORS, SRCCOPY);
+
+		// log
+		char log[20];
+		sprintf_s(log, "%d  %.4f\n", timer.FPS, timer.elapsed);
+		OutputDebugString(log);
 
 	}
 

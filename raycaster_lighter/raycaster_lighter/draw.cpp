@@ -123,7 +123,7 @@ inline void draw_triangle(Vec3f* pts, Color color)
 		for (int j = 0; j < 2; j++)
 		{
 			bot_left[j] = MAX(0.0f, MIN(bot_left[j], pts[i][j]));
-			top_right[j] = MIN(surface.height, MAX(top_right[j], pts[i][j]));
+			top_right[j] = MIN(surface.width, MAX(top_right[j], pts[i][j]));
 		}
 	}
 	Vert3i P;
