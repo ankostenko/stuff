@@ -30,7 +30,7 @@
     <ClCompile Include="mouse_input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="line.cpp">
+    <ClCompile Include="shapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
