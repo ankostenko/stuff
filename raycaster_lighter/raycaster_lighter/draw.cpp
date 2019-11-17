@@ -84,7 +84,8 @@ inline void draw_filled_rect(int x0, int y0, int x1, int y1, Color color)
 {
 	for (int y = y0; y < y1; y++)
 		for (int x = x0; x < x1; x++)
-			surface.memory[y * surface.width + x] = color.whole;
+			drawPixel(x, y, color);
+
 }
 
 inline void draw_filled_circle(int X, int Y, int radius, Color color)
@@ -104,7 +105,7 @@ inline void draw_filled_circle(int X, int Y, int radius, Color color)
 
 			// + 1 make it more slightly
 			if (x * x + y * y <= radius * radius + 1)
-				surface.memory[(Y + y) * surface.width + X + x] = color.whole;
+				drawPixel(X + x, Y + y, color);
 		}
 	}
 }
@@ -133,7 +134,7 @@ inline void draw_triangle(Vec3f* pts, Color color)
 		{
 			Vec3f bar;
 			if (barycentric(pts[0], pts[1], pts[2], P, &bar))
-				surface.memory[P.y * surface.width + P.x] = color.whole;
+				drawPixel(P.x, P.y, color);
 		}
 	}
 }

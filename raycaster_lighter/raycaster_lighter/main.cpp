@@ -190,16 +190,19 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 						 Vec2f(rays[i + 1].pos.x + rays[i + 1].dir.x * rays[i + 1].lenght, rays[i + 1].pos.y + rays[i + 1].dir.y * rays[i + 1].lenght) };
 
 			draw_triangle(pts, Color(255, 255, 255));
+
+			rays[i].draw(Color(255, 0, 0));
 		}
 
 		// for end and begin triangle
 		{
 			Vec3f pts[]{ rays[0].pos,
-				Vec2f(rays[rays.size() - 1].pos.x + rays[rays.size() - 1].dir.x * rays[rays.size() - 1].lenght, rays[rays.size() - 1].pos.y + rays[rays.size() - 1].dir.y * rays[rays.size() - 1].lenght),
-					 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght)
-					 };
+					 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght),
+					 Vec2f(rays.back().pos.x + rays.back().dir.x * rays.back().lenght, rays.back().pos.y + rays.back().dir.y * rays.back().lenght)};
 
 			draw_triangle(pts, Color(255, 255, 255));
+
+			rays.back().draw(Color(255, 0, 0));
 
 		}
 
