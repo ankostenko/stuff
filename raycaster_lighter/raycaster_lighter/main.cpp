@@ -77,7 +77,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	add_some_shapes(shapes);
 
 	// ray
-	Line ray(Vert2f(surface.width / 2, surface.height / 2), Vec2f(), 0);
+	Line ray(Vert2f(surface.width / 2, surface.height / 2), Vec2f(), 200);
 
 	// mouse input
 	Mouse_Input mouse;
@@ -121,8 +121,30 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 		// calturate the ray
 		Vec2f dir(mouse.x - ray.pos.x, mouse.y - ray.pos.y);
-		ray.lenght = dir.norm();
 		ray.dir = dir.normalize();
+
+		// segment of shape: coef of lines intersection 0 < T2 < 1
+		float T2 = 2000;
+		// ray: T1 > 0
+		float T1 = 680;
+
+		for (Line line : shapes)
+		{
+			float new_T2 = (ray.dir.x * (line.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - line.pos.x)) /
+										(line.dir.x * ray.dir.y - line.dir.y * ray.dir.x);
+
+			// clossest srgment
+			if (new_T2 > 0 && new_T2 < line.lenght)
+			{
+				T2 = new_T2;
+				float new_T1 = (line.pos.x + line.dir.x * T2 - ray.pos.x) / ray.dir.x;
+				if (new_T1 < T1 && new_T1 > 0)
+					T1 = new_T1;
+			}
+		}
+
+		ray.lenght = T1;
+
 
 
 		// Draw ---------------------------------------------------------------
@@ -139,6 +161,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 		// draw ray
 		ray.draw();
+		// intersection point
+		draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+
 
 		// timer
 		timer.update();

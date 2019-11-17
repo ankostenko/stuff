@@ -10,6 +10,12 @@
 #define MIN(a, b) (a < b? a: b)
 
 inline void drawPixel(int x, int y, Color color) {
+	// cheker
+	x = MIN(x, surface.width - 1);
+	x = MAX(x, 0);
+	y = MIN(y, surface.height - 1);
+	y = MAX(y, 0);
+
 	surface.memory[y * surface.width + x] = color.whole;
 }
 
