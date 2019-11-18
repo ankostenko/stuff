@@ -5,6 +5,7 @@ struct Line
 	Vec2f dir;
 	int lenght{0};
 
+	inline Line() = default;
 	inline Line(Vert2f pos, Vec2f dir, int lenght) : pos(pos), dir(dir), lenght(lenght) {}
 
 	void draw(Color color = Color(255, 255, 255))
@@ -23,12 +24,12 @@ inline void make_shape(Vec2f* p, int size, std::vector<Line>& lines)
 	for (int i = 0; i < size - 1; i++)
 	{
 		Vec2f dir(p[i + 1].x - p[i].x, p[i + 1].y - p[i].y);
-		lines.push_back(Line(p[i], dir.normalize(), dir.norm() > 0? dir.norm() + 1: dir.norm() - 1));
+		lines.push_back(Line(p[i], dir.normalize(), dir.norm() > 0? dir.norm(): dir.norm()));
 	}
 
 	// bound end wiht start dot
 	Vec2f dir(p[0].x - p[size - 1].x, p[0].y - p[size - 1].y);
-	lines.push_back(Line(p[size - 1], dir.normalize(), dir.norm() > 0 ? dir.norm() + 1 : dir.norm() - 1));
+	lines.push_back(Line(p[size - 1], dir.normalize(), dir.norm() > 0 ? dir.norm() : dir.norm()));
 }
 
 
