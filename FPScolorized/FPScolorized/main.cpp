@@ -11,6 +11,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#define MIN(a, b) (a > b? b: a)
+
 using namespace my::Timer;
 
 bool running = true;
@@ -130,6 +132,8 @@ void texture_column(uint32_t* out_colum, const uint32_t* img, const size_t texsi
 	const size_t img_h = texsize;
 	//uint32_t* column = (uint32_t*)_alloca(sizeof(uint32_t) * column_height);
 	//assert(column);
+	if (!img)
+		return;
 
 	for (size_t y = 0; y < column_height; y++) {
 		size_t pix_x = texid * texsize + texcoord;
@@ -163,9 +167,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 	uint32_t* framebuffer = new uint32_t[win_w * win_h]; //(win_w * win_h, pack_color(255, 255, 255)); // the image itself, initialized to red
 
-	float player_x = 3.456; // player x position
-	float player_y = 2.345; // player y position
-	float player_a = 1.523; // player view direction
+	float player_x = 3.; // player x position
+	float player_y = 3.; // player y position
+	float player_a = 2.523; // player view direction
 
 	const size_t map_w = 16; // map width
 	const size_t map_h = 16; // map height
@@ -193,7 +197,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 
 	// column of texture
-	uint32_t column[512];
+	uint32_t column[2000];
 
 
 	// colors
@@ -246,7 +250,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		// ray casting
 		const float fov = PI / 3.0f; // field of view
 
-		for (size_t i = 0; i < win_w; i++) // draw the visibility cone AND the "3D" view
+		for (size_t i = 0; i < win_w / 2; i++) // draw the visibility cone AND the "3D" view
 		{
 			float angle = player_a - fov / 2 + fov * i / float(win_w / 2);
 
@@ -271,6 +275,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 				if (map[int(cx) + int(cy) * map_w] != ' ') // our ray touches a wall, so draw the vertical column to create an illusion of 3D
 				{
 					size_t column_height = win_h / t / cos(angle - player_a);
+					column_height = MIN(400, column_height);
 					int texid = (int)map[int(cx) + int(cy) * map_w] - 48;
 					//draw_rectangle(framebuffer, win_w, win_h, win_w / 2 + i, win_h / 2 - column_height / 2, 1, column_height, colors[map[int(cx) + int(cy) * map_w] - 48]);
 
