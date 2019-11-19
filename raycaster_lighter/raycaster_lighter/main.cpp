@@ -3,8 +3,8 @@
 #include <vector>
 #include <algorithm>
 
-#define SMALL_SCREEN // 320 320  ELSE 1200 720
-#define TRIANGLES  // ELSE LINES
+#define SMALL_SCREEN 0 // 320 320  ELSE 1200 720
+#define TRIANGLES 0 // ELSE LINES
 
 // Global varibals
 float pseudoangle(float dx, float dy)
@@ -82,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	RegisterClass(&window_class);
 
 	// create window
-#ifdef SMALL_SCREEN
+#if SMALL_SCREEN
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 320, 320, 0, 0, hInst, 0);
 #else
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter",  WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
@@ -232,7 +232,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
 		
-#ifndef TRIANGLES
+#if !(TRIANGLES)
 		// draw ray
 		for (Line ray : rays)
 		{

@@ -42,7 +42,7 @@ inline void add_some_shapes(std::vector<Line>& lines)
 		make_shape(vert, 4, lines);
 	}
 
-#ifdef SMALL_SCREEN
+#if SMALL_SCREEN
 	// shapes
 	{
 		Vec2f vert[] = { Vec2f(30, 30), Vec2f(130, 130), Vec2f(80, 130) };
