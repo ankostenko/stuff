@@ -143,26 +143,28 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		if (rays.size() < shapes.size())
 			rays.resize(3 * shapes.size());
 
+		int j = 0;
 		for (int i = 0; i < shapes.size(); i++)
 		{
+			// - A where A < PI / 100
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.001, shapes[i].pos.y - rays[i].pos.y - 0.001).normalize();
+
 			// ray to corner
-			rays[i].dir.x = shapes[i].pos.x - rays[i].pos.x;
-			rays[i].dir.y = shapes[i].pos.y - rays[i].pos.y;
+			rays[j].dir.x = shapes[i].pos.x - rays[i].pos.x;
+			rays[j++].dir.y = shapes[i].pos.y - rays[i].pos.y;
 
 			//  + A
-			rays[shapes.size() + i].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + PI / 10, shapes[i].pos.y - rays[i].pos.y + PI / 10).normalize();
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.001, shapes[i].pos.y - rays[i].pos.y + 0.001).normalize();
 
-			// - A where A < PI / 100
-			rays[2 * shapes.size() + i].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - PI / 10, shapes[i].pos.y - rays[i].pos.y - PI / 10).normalize();
 		}
 
-		std::sort(rays.begin(), rays.end(), [](Line a, Line b) {
-			if (a.dir.x < b.dir.x)
-				return true;
-			else if (a.dir.y > b.dir.y)
-				return true;
-			else
-				return false;
+		std::sort(rays.begin(), rays.end(), [](Line a, Line b)
+		{
+			if (asinf(a.dir.y) < asinf(b.dir.y))
+				if (acosf(a.dir.x) > acosf(b.dir.x))
+					return true;
+
+			return false;
 		});
 
 
@@ -181,11 +183,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 					(line.dir.x * ray.dir.y - line.dir.y * ray.dir.x);
 
 				// clossest srgment
-				if (new_T2 > 0 && new_T2 <= line.lenght)
+				if (new_T2 >= 0 && new_T2 <= 1)
 				{
 					T2 = new_T2;
 					float new_T1 = (line.pos.x + line.dir.x * T2 - ray.pos.x) / ray.dir.x;
-					if (new_T1 < T1 && new_T1 > 0)
+					if (new_T1 < T1 && new_T1 >= 0)
 						T1 = new_T1;
 				}
 			}
@@ -208,36 +210,36 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
 		// draw ray
-		for (Line ray : rays)
-		{
-			ray.draw();
-			// intersection point
-			draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
-		}
+		//for (Line ray : rays)
+		//{
+		//	ray.draw();
+		//	// intersection point
+		//	draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+		//}
 
 		// draw triangle
-		//for (int i = 0; i < rays.size() - 1; i++)
-		//{
-		//	Vec3f pts[]{ rays[i].pos, 
-		//				 Vec2f(rays[i].pos.x + rays[i].dir.x * rays[i].lenght, rays[i].pos.y + rays[i].dir.y * rays[i].lenght),
-		//				 Vec2f(rays[i + 1].pos.x + rays[i + 1].dir.x * rays[i + 1].lenght, rays[i + 1].pos.y + rays[i + 1].dir.y * rays[i + 1].lenght) };
+		for (int i = 0; i < rays.size() - 1; i++)
+		{
+			Vec3f pts[]{ rays[i].pos, 
+						 Vec2f(rays[i].pos.x + rays[i].dir.x * rays[i].lenght, rays[i].pos.y + rays[i].dir.y * rays[i].lenght),
+						 Vec2f(rays[i + 1].pos.x + rays[i + 1].dir.x * rays[i + 1].lenght, rays[i + 1].pos.y + rays[i + 1].dir.y * rays[i + 1].lenght) };
 
-		//	draw_triangle(pts, Color(255, 255, 255));
+			draw_triangle(pts, Color(255, 255, 255));
 
-		//	rays[i].draw(Color(255, 0, 0));
-		//}
+			rays[i].draw(Color(255, 0, 0));
+		}
 
-		//// for end and begin triangle
-		//{
-		//	Vec3f pts[]{ rays[0].pos,
-		//			 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght),
-		//			 Vec2f(rays.back().pos.x + rays.back().dir.x * rays.back().lenght, rays.back().pos.y + rays.back().dir.y * rays.back().lenght)};
+		// for end and begin triangle
+		{
+			Vec3f pts[]{ rays[0].pos,
+					 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght),
+					 Vec2f(rays.back().pos.x + rays.back().dir.x * rays.back().lenght, rays.back().pos.y + rays.back().dir.y * rays.back().lenght)};
 
-		//	draw_triangle(pts, Color(255, 255, 255));
+			draw_triangle(pts, Color(255, 255, 255));
 
-		//	rays.back().draw(Color(255, 0, 0));
+			rays.back().draw(Color(255, 0, 0));
 
-		//}
+		}
 
 
 		// timer

@@ -13,18 +13,24 @@
 //
 // write_file("file1.txt", d);
 
-
-
+#ifdef __cplusplus
 struct Data
 {
-	char* data{NULL};
-	size_t size{0};
+	char* data{ NULL };
+	size_t size{ 0 };
 
 	char& operator [] (size_t i)
 	{
 		return data[i];
 	}
 };
+#else
+typedef struct Data
+{
+	char* data;
+	size_t size;
+} Data;
+#endif
 
 inline Data open_file(char const* file_name)
 {
@@ -51,7 +57,7 @@ inline Data open_file(char const* file_name)
 	data.size = GetFileSize(hFile, NULL);
 	DWORD nBytesRead;
 	BOOL bResult;
-	char* data = new char[data.size];
+	data.data = new char[data.size];
 
 	bResult = ReadFile(hFile, data.data, data.size, &nBytesRead, NULL);
 
