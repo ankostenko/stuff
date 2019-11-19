@@ -3,6 +3,9 @@
 #include <vector>
 #include <algorithm>
 
+#define SMALL_SCREEN // 320 320  ELSE 1200 720
+#define TRIANGLES  // ELSE LINES
+
 // Global varibals
 float pseudoangle(float dx, float dy)
 {
@@ -79,7 +82,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	RegisterClass(&window_class);
 
 	// create window
+#ifdef SMALL_SCREEN
+	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 320, 320, 0, 0, hInst, 0);
+#else
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter",  WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
+#endif
+
+
 	HDC hdc = GetDC(window);
 
 
@@ -155,12 +164,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		int j = 0;
 		for (int i = 0; i < shapes.size(); i++)
 		{
-			// - A where A < PI / 100
-			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.01, shapes[i].pos.y - rays[i].pos.y - 0.01).normalize();
-
 			// ray to corner
 			rays[j].dir.x = shapes[i].pos.x - rays[i].pos.x;
 			rays[j++].dir.y = shapes[i].pos.y - rays[i].pos.y;
+
+			// - A where A < PI / 100
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.01, shapes[i].pos.y - rays[i].pos.y - 0.01).normalize();
 
 			//  + A
 			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.01, shapes[i].pos.y - rays[i].pos.y + 0.01).normalize();
@@ -222,14 +231,16 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		// draw mouse point
 		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
+		
+#ifndef TRIANGLES
 		// draw ray
-		//for (Line ray : rays)
-		//{
-		//	ray.draw();
-		//	// intersection point
-		//	draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
-		//}
-
+		for (Line ray : rays)
+		{
+			ray.draw();
+			// intersection point
+			draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+		}
+#else
 		// draw triangle
 		for (int i = 0; i < rays.size() - 1; i++)
 		{
@@ -239,7 +250,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		
 			draw_triangle(pts, Color(255, 255, 255));
 		
-			//rays[i].draw(Color(255, 0, 0));
+			//rays[i].draw(color(255, 0, 0));
 		}
 		
 		// for end and begin triangle
@@ -250,9 +261,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		
 			draw_triangle(pts, Color(255, 255, 255));
 		
-			//rays.back().draw(Color(255, 0, 0));
-		
+		//rays.back().draw(color(255, 0, 0));
 		}
+#endif
 
 
 		// timer

@@ -42,6 +42,30 @@ inline void add_some_shapes(std::vector<Line>& lines)
 		make_shape(vert, 4, lines);
 	}
 
+#ifdef SMALL_SCREEN
+	// shapes
+	{
+		Vec2f vert[] = { Vec2f(30, 30), Vec2f(130, 130), Vec2f(80, 130) };
+		make_shape(vert, 3, lines);
+	}
+
+	{
+		Vec2f vert[] = { Vec2f(210, 210), Vec2f(240, 200), Vec2f(230, 230) };
+		make_shape(vert, 3, lines);
+	}
+
+
+	{
+		Vec2f vert[] = { Vec2f(210, 10), Vec2f(240, 20), Vec2f(230, 30) };
+		make_shape(vert, 3, lines);
+	}
+
+	{
+		Vec2f vert[] = { Vec2f(210, 80), Vec2f(260, 60), Vec2f(230, 120) };
+		make_shape(vert, 3, lines);
+	}
+
+#else
 	// shapes
 	{
 		Vec2f vert[] = { Vec2f(150, 100), Vec2f(250, 200), Vec2f(200, 400) };
@@ -78,4 +102,5 @@ inline void add_some_shapes(std::vector<Line>& lines)
 		Vec2f vert[] = { Vec2f(200, 500), Vec2f(350, 400), Vec2f(400, 530), Vec2f(200, 600) };
 		make_shape(vert, 4, lines);
 	}
+#endif
 }
