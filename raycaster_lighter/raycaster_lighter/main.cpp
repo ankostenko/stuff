@@ -4,6 +4,15 @@
 #include <algorithm>
 
 // Global varibals
+float pseudoangle(float dx, float dy)
+{
+		float p = dx / (fabs(dx) + fabs(dy));// #   - 1 .. 1 increasing with x
+		if (dy < 0 ) 
+			return p - 1; //  #   - 2 .. 0 increasing with x
+		else
+			return 1 - p; //  #  0 .. 2 decreasing with x
+}
+
 #define PI 3.14159265359
 bool running = true;
 
@@ -147,24 +156,28 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		for (int i = 0; i < shapes.size(); i++)
 		{
 			// - A where A < PI / 100
-			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.001, shapes[i].pos.y - rays[i].pos.y - 0.001).normalize();
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.01, shapes[i].pos.y - rays[i].pos.y - 0.01).normalize();
 
 			// ray to corner
 			rays[j].dir.x = shapes[i].pos.x - rays[i].pos.x;
 			rays[j++].dir.y = shapes[i].pos.y - rays[i].pos.y;
 
 			//  + A
-			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.001, shapes[i].pos.y - rays[i].pos.y + 0.001).normalize();
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.01, shapes[i].pos.y - rays[i].pos.y + 0.01).normalize();
 
 		}
 
-		std::sort(rays.begin(), rays.end(), [](Line a, Line b)
+		std::sort(rays.begin(), rays.end(), [](Line a, Line b)->bool 
 		{
-			if (asinf(a.dir.y) < asinf(b.dir.y))
-				if (acosf(a.dir.x) > acosf(b.dir.x))
-					return true;
+			/*float angle_a = a.dir.y < 0 ? acosf(a.dir.x) + PI : acosf(a.dir.x);
+			float angle_b = b.dir.y < 0 ? acosf(b.dir.x) + PI : acosf(b.dir.x);
+		
+			return angle_a < angle_b;*/
+		
+			float angle_a = pseudoangle(a.dir.x, a.dir.y);
+			float angle_b = pseudoangle(b.dir.x, b.dir.y);
 
-			return false;
+			return angle_a < angle_b;
 		});
 
 
@@ -220,25 +233,25 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		// draw triangle
 		for (int i = 0; i < rays.size() - 1; i++)
 		{
-			Vec3f pts[]{ rays[i].pos, 
+			Vec3f pts[]{ rays[i].pos,
 						 Vec2f(rays[i].pos.x + rays[i].dir.x * rays[i].lenght, rays[i].pos.y + rays[i].dir.y * rays[i].lenght),
 						 Vec2f(rays[i + 1].pos.x + rays[i + 1].dir.x * rays[i + 1].lenght, rays[i + 1].pos.y + rays[i + 1].dir.y * rays[i + 1].lenght) };
-
+		
 			draw_triangle(pts, Color(255, 255, 255));
-
-			rays[i].draw(Color(255, 0, 0));
+		
+			//rays[i].draw(Color(255, 0, 0));
 		}
-
+		
 		// for end and begin triangle
 		{
 			Vec3f pts[]{ rays[0].pos,
 					 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght),
 					 Vec2f(rays.back().pos.x + rays.back().dir.x * rays.back().lenght, rays.back().pos.y + rays.back().dir.y * rays.back().lenght)};
-
+		
 			draw_triangle(pts, Color(255, 255, 255));
-
-			rays.back().draw(Color(255, 0, 0));
-
+		
+			//rays.back().draw(Color(255, 0, 0));
+		
 		}
 
 
