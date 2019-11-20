@@ -42,7 +42,7 @@ inline void add_some_shapes(std::vector<Line>& lines)
 		make_shape(vert, 4, lines);
 	}
 
-#ifdef SMALL_SCREEN
+#if SCREEN_MODE == SMALL_SCREEN
 	// shapes
 	{
 		Vec2f vert[] = { Vec2f(30, 30), Vec2f(130, 130), Vec2f(80, 130) };
@@ -65,7 +65,7 @@ inline void add_some_shapes(std::vector<Line>& lines)
 		make_shape(vert, 3, lines);
 	}
 
-#else
+#elif SCREEN_MODE == BIG_SCREEN
 	// shapes
 	{
 		Vec2f vert[] = { Vec2f(150, 100), Vec2f(250, 200), Vec2f(200, 400) };

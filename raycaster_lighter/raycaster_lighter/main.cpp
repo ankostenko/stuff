@@ -3,19 +3,30 @@
 #include <vector>
 #include <algorithm>
 
-#define SMALL_SCREEN // 320 320  ELSE 1200 720
-#define TRIANGLES  // ELSE LINES
 
-// Global varibals
+// options ------------------------------------------------
+#define SMALL_SCREEN  0x00 // 320 x 320  ELSE 1200 x 720
+#define BIG_SCREEN  0x01
+
+#define LINES  0x00
+#define TRIANGLES  0x01
+
+#define SCREEN_MODE  BIG_SCREEN
+#define DRAW_MODE  TRIANGLES 
+// --------------------------------------------------------
+
+// direction to angle
 float pseudoangle(float dx, float dy)
 {
-		float p = dx / (fabs(dx) + fabs(dy));// #   - 1 .. 1 increasing with x
-		if (dy < 0 ) 
-			return p - 1; //  #   - 2 .. 0 increasing with x
-		else
-			return 1 - p; //  #  0 .. 2 decreasing with x
+	float p = dx / (fabs(dx) + fabs(dy));// #   - 1 .. 1 increasing with x
+	if (dy < 0)
+		return p - 1; //  #   - 2 .. 0 increasing with x
+	else
+		return 1 - p; //  #  0 .. 2 decreasing with x
 }
 
+
+// Global varibals
 #define PI 3.14159265359
 bool running = true;
 
@@ -82,9 +93,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	RegisterClass(&window_class);
 
 	// create window
-#ifdef SMALL_SCREEN
+#if SCREEN_MODE == SMALL_SCREEN
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 320, 320, 0, 0, hInst, 0);
-#else
+#elif SCREEN_MODE == BIG_SCREEN
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter",  WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
 #endif
 
@@ -232,7 +243,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
 		
-#ifndef TRIANGLES
+#if DRAW_MODE == LINES
 		// draw ray
 		for (Line ray : rays)
 		{
@@ -240,7 +251,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 			// intersection point
 			draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
 		}
-#else
+#elif DRAW_MODE == TRIANGLES
 		// draw triangle
 		for (int i = 0; i < rays.size() - 1; i++)
 		{
