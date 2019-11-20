@@ -172,6 +172,36 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		if (rays.size() < shapes.size())
 			rays.resize(3 * shapes.size());
 
+		//int j = 0;
+		//for (int i = 0; i < shapes.size(); i++)
+		//{
+		//	// ray to corner
+		//	rays[j].dir.x = shapes[i].pos.x - rays[i].pos.x;
+		//	rays[j++].dir.y = shapes[i].pos.y - rays[i].pos.y;
+
+		//	// - A where A < PI / 100
+		//	rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.01, shapes[i].pos.y - rays[i].pos.y - 0.01).normalize();
+
+		//	//  + A
+		//	rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.01, shapes[i].pos.y - rays[i].pos.y + 0.01).normalize();
+
+		//}
+		static int x = 0;
+		x += 2;
+
+		if (x == surface.width - 1)
+			break;
+
+
+		for (Line& ray : rays)
+		{
+			//ray.pos.x = x;
+			//ray.pos.y = surface.height / 2;
+
+			ray.pos.x = mouse.x, ray.pos.y = mouse.y;
+		}
+
+
 		int j = 0;
 		for (int i = 0; i < shapes.size(); i++)
 		{
@@ -179,21 +209,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 			rays[j].dir.x = shapes[i].pos.x - rays[i].pos.x;
 			rays[j++].dir.y = shapes[i].pos.y - rays[i].pos.y;
 
+
+			// two rays +- small angle
 			// - A where A < PI / 100
-			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.01, shapes[i].pos.y - rays[i].pos.y - 0.01).normalize();
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.1, shapes[i].pos.y - rays[i].pos.y - 0.1).normalize();
 
 			//  + A
-			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.01, shapes[i].pos.y - rays[i].pos.y + 0.01).normalize();
+			rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.1, shapes[i].pos.y - rays[i].pos.y + 0.1).normalize();
 
 		}
 
 		std::sort(rays.begin(), rays.end(), [](Line a, Line b)->bool 
 		{
-			/*float angle_a = a.dir.y < 0 ? acosf(a.dir.x) + PI : acosf(a.dir.x);
-			float angle_b = b.dir.y < 0 ? acosf(b.dir.x) + PI : acosf(b.dir.x);
-		
-			return angle_a < angle_b;*/
-		
 			float angle_a = pseudoangle(a.dir.x, a.dir.y);
 			float angle_b = pseudoangle(b.dir.x, b.dir.y);
 
@@ -203,8 +230,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 		for (Line& ray : rays)
 		{
-			ray.pos.x = mouse.x, ray.pos.y = mouse.y;
-
 			// segment of shape: coef of lines intersection 0 < T2 < 1
 			float T2 = 2000;
 			// ray: T1 > 0
@@ -261,7 +286,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		
 			draw_triangle(pts, Color(255, 255, 255));
 		
-			//rays[i].draw(color(255, 0, 0));
+			//rays[i].draw(Color(255, 0, 0));
 		}
 		
 		// for end and begin triangle
@@ -272,7 +297,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		
 			draw_triangle(pts, Color(255, 255, 255));
 		
-		//rays.back().draw(color(255, 0, 0));
+			//rays.back().draw(Color(255, 0, 0));
 		}
 #endif
 
