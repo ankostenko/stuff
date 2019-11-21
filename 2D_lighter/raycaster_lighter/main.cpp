@@ -6,14 +6,14 @@
 
 
 // options ------------------------------------------------
-#define SMALL_SCREEN  0x00 // 320 x 320  ELSE 1200 x 720
+#define SMALL_SCREEN  0x00 // 400 x 400  ELSE 1200 x 720
 #define BIG_SCREEN  0x01
 
 #define LINES  0x00
 #define TRIANGLES  0x01
 
-#define SCREEN_MODE  SMALL_SCREEN
-#define DRAW_MODE  TRIANGLES
+#define SCREEN_MODE  SMALL_SCREEN  // CHANGE THIS PARAM TO THE BIG_SCREEN
+#define DRAW_MODE  TRIANGLES     // CHANGE TO LINES
 
 // draw defines  ------------------------------------------
 #define ADDITION  0x00
@@ -99,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 	// create window
 #if SCREEN_MODE == SMALL_SCREEN
-	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 320, 320, 0, 0, hInst, 0);
+	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 400, 400, 0, 0, hInst, 0);
 #elif SCREEN_MODE == BIG_SCREEN
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter",  WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
 #endif
@@ -134,7 +134,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	Mouse_Input mouse;
 
 	// timer
-	Timer timer(true);
+	Timer timer(false);
 	while (running)
 	{
 		// Input
@@ -175,38 +175,27 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		//ray.dir = dir.normalize();
 
 
+
+		// 5 lighters at small screen mode
+#if SCREEN_MODE == SMALL_SCREEN
+		for (auto& rays : lighters)
+			if (rays.size() < shapes.size())
+				rays.resize(3 * shapes.size());
+
+
 		// instead Legasy N1 dynamic ray diraction
 		// cast to the begin of the lines
-
-		// if shapes can be added
-#if SCREEN_MODE == BIG_SCREEN
-		if (rays.size() < shapes.size())
-			rays.resize(3 * shapes.size());
-#elif SCREEN_MODE == SMALL_SCREEN
-	for (auto& rays : lighters)
-		if (rays.size() < shapes.size())
-			rays.resize(3 * shapes.size());
-#endif
-		
-		
-#if SCREEN_MODE == SMALL_SCREEN
 		for (int i = 0; i < lighters.size(); i++)
 		{
 			for (Line& ray : lighters[i])
 			{
-				ray.pos.x = mouse.x + cosf(i * PI / 5) * 10;
-				ray.pos.y = mouse.y + sinf(i * PI / 5) * 10;
+				ray.pos.x = mouse.x + cosf(i * PI / 5) * 12;
+				ray.pos.y = mouse.y + sinf(i * PI / 5) * 12;
 			}
 		}
-#elif SCREEN_MODE == BIG_SCREEN
-		for (Line& ray : rays)
-		{
-			ray.pos.x = mouse.x, ray.pos.y = mouse.y;
-		}
-#endif
 
 
-#if SCREEN_MODE == SMALL_SCREEN
+		// directions of rays + 2 rays with +-0.1
 		for (auto& rays : lighters)
 		{
 			int j = 0;
@@ -219,23 +208,68 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 				// two rays +- small angle
 				// - A where A < PI / 100
-				rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.1, shapes[i].pos.y - rays[i].pos.y - 0.1).normalize();
+				rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x - 0.05, shapes[i].pos.y - rays[i].pos.y - 0.05).normalize();
 
 				//  + A
-				rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.1, shapes[i].pos.y - rays[i].pos.y + 0.1).normalize();
+				rays[j++].dir = Vec2f(shapes[i].pos.x - rays[i].pos.x + 0.05, shapes[i].pos.y - rays[i].pos.y + 0.05).normalize();
 
 			}
 		}
+
+
+		// calculate the distance to secment of shape
 		for (auto& rays : lighters)
 		{
-			std::sort(rays.begin(), rays.end(), [](Line a, Line b)->bool
+			for (Line& ray : rays)
 			{
-				float angle_a = pseudoangle(a.dir.x, a.dir.y);
-				float angle_b = pseudoangle(b.dir.x, b.dir.y);
-				return angle_a < angle_b;
-			});
+				// segment of shape: coef of lines intersection 0 < T2 < 1
+				float T2 = 2000;
+				// ray: T1 > 0
+				float T1 = 2000;
+
+				for (Line line : shapes)
+				{
+					float new_T2 = (ray.dir.x * (line.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - line.pos.x)) /
+						(line.dir.x * ray.dir.y - line.dir.y * ray.dir.x);
+
+					// clossest srgment
+					if (new_T2 >= 0 && new_T2 <= 1)
+					{
+						T2 = new_T2;
+						float new_T1 = (line.pos.x + line.dir.x * T2 - ray.pos.x) / ray.dir.x;
+						if (new_T1 < T1 && new_T1 >= 0)
+							T1 = new_T1;
+					}
+				}
+
+				ray.lenght = T1;
+			}
+
+
+			for (auto& rays : lighters)
+			{
+				std::sort(rays.begin(), rays.end(), [](Line a, Line b)->bool
+				{
+					float angle_a = pseudoangle(a.dir.x, a.dir.y);
+					float angle_b = pseudoangle(b.dir.x, b.dir.y);
+					return angle_a < angle_b;
+				});
+			}
 		}
+
+
+
 #elif SCREEN_MODE == BIG_SCREEN
+
+		if (rays.size() < shapes.size())
+			rays.resize(3 * shapes.size());
+		
+		for (Line& ray : rays)
+		{
+			ray.pos.x = mouse.x, ray.pos.y = mouse.y;
+		}
+
+
 		int j = 0;
 		for (int i = 0; i < shapes.size(); i++)
 		{
@@ -260,38 +294,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 
 			return angle_a < angle_b;
 		});
-#endif
 
-
-#if SCREEN_MODE == SMALL_SCREEN
-		for (auto& rays : lighters)
-		{
-			for (Line& ray : rays)
-			{
-				// segment of shape: coef of lines intersection 0 < T2 < 1
-				float T2 = 2000;
-				// ray: T1 > 0
-				float T1 = 2000;
-
-				for (Line line : shapes)
-				{
-					float new_T2 = (ray.dir.x * (line.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - line.pos.x)) /
-						(line.dir.x * ray.dir.y - line.dir.y * ray.dir.x);
-
-					// clossest segment
-					if (new_T2 >= 0 && new_T2 <= 1)
-					{
-						T2 = new_T2;
-						float new_T1 = (line.pos.x + line.dir.x * T2 - ray.pos.x) / ray.dir.x;
-						if (new_T1 < T1 && new_T1 >= 0)
-							T1 = new_T1;
-					}
-				}
-
-				ray.lenght = T1;
-			}
-		}
-#elif SCREEN_MODE == BIG_SCREEN
 		for (Line& ray : rays)
 		{
 			// segment of shape: coef of lines intersection 0 < T2 < 1
@@ -328,18 +331,19 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		for (Line line : shapes)
 			line.draw(Color(255, 255, 255));
 
-		// draw mouse point
-		draw_filled_circle(mouse.x, mouse.y, 5, Color(255, 0, 0));
 
-	
+
 #if SCREEN_MODE == SMALL_SCREEN
 #if DRAW_MODE == LINES
 		// draw ray
-		for (Line ray : rays)
+		for (auto rays : lighters)
 		{
-			ray.draw();
-			// intersection point
-			draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+			for (Line ray : rays)
+			{
+				ray.draw();
+				// intersection point
+				draw_filled_circle(ray.pos.x + ray.dir.x * ray.lenght, ray.pos.y + ray.dir.y * ray.lenght, 5, Color(255, 0, 0));
+			}
 		}
 #elif DRAW_MODE == TRIANGLES
 		// draw triangle
@@ -351,9 +355,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 							 Vec2f(rays[i].pos.x + rays[i].dir.x * rays[i].lenght, rays[i].pos.y + rays[i].dir.y * rays[i].lenght),
 							 Vec2f(rays[i + 1].pos.x + rays[i + 1].dir.x * rays[i + 1].lenght, rays[i + 1].pos.y + rays[i + 1].dir.y * rays[i + 1].lenght) };
 
-				draw_triangle(pts, Color(44, 44, 44), ADDITION);
+				draw_triangle(pts, Color(88, 88, 88), ADDITION);
 
-				//rays[i].draw(Color(255, 0, 0));
 			}
 
 			// for end and begin triangle
@@ -362,9 +365,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 						 Vec2f(rays[0].pos.x + rays[0].dir.x * rays[0].lenght, rays[0].pos.y + rays[0].dir.y * rays[0].lenght),
 						 Vec2f(rays.back().pos.x + rays.back().dir.x * rays.back().lenght, rays.back().pos.y + rays.back().dir.y * rays.back().lenght) };
 
-				draw_triangle(pts, Color(44, 44, 44), ADDITION);
+				draw_triangle(pts, Color(88, 88, 88), ADDITION);
 
-				//rays.back().draw(Color(255, 0, 0));
 			}
 		}
 #endif

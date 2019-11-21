@@ -113,9 +113,9 @@ struct Vec3
 };
 
 typedef Vec2<int> Vert2i;
-typedef Vec2<float> Vert2f;
+typedef Vec2<double> Vert2f;
 typedef Vec2<int> Vec2i;
-typedef Vec2<float> Vec2f;
+typedef Vec2<double> Vec2f;
 
 typedef Vec3<int> Vert3i;
 typedef Vec3<float> Vert3f;

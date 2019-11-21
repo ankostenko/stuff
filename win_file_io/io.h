@@ -4,38 +4,8 @@
 #include <stdio.h>
 
 
-// Data d;
-// d = open_file("file.txt");
-// 
-// // out data to console
-// for (int i = 0; i < d.size; i++)
-//	printf("%c", d[i])
-//
-// write_file("file1.txt", d);
-
-#ifdef __cplusplus
-struct Data
+inline char* open_file(char const* file_name , int& size)
 {
-	char* data{ NULL };
-	size_t size{ 0 };
-
-	char& operator [] (size_t i)
-	{
-		return data[i];
-	}
-};
-#else
-typedef struct Data
-{
-	char* data;
-	size_t size;
-} Data;
-#endif
-
-inline Data open_file(char const* file_name)
-{
-	Data data;
-
 	HANDLE hFile;
 
 	hFile = CreateFile(file_name,
@@ -51,27 +21,27 @@ inline Data open_file(char const* file_name)
 		_tprintf(TEXT("hFile is NULL\n"));
 		_tprintf(TEXT("Target file is %s\n"),
 			file_name);
-		return Data();
+		return  NULL;
 	}
 
-	data.size = GetFileSize(hFile, NULL);
+	size = GetFileSize(hFile, NULL);
 	DWORD nBytesRead;
 	BOOL bResult;
-	data.data = new char[data.size];
+	char* data = new char[size];
 
-	bResult = ReadFile(hFile, data.data, data.size, &nBytesRead, NULL);
+	bResult = ReadFile(hFile, data, size, &nBytesRead, NULL);
 
 	if (!bResult)
 	{
 		printf("Read failed");
-		return Data();
+		return NULL;
 	}
 
 	return data;
 }
 
 // size in bytes
-inline void write_file(char const* file_name, Data data)
+inline void write_file(char const* file_name, char* data, int size)
 {
 	HANDLE hFile;
 
@@ -99,8 +69,8 @@ inline void write_file(char const* file_name, Data data)
 
 	bResult = WriteFile(
 		hFile,                    // ?????????? ?????
-		data.data,                // ????? ??????
-		data.size,				// ????? ?????? ??? ??????
+		data,                // ????? ??????
+		size,				// ????? ?????? ??? ??????
 		&nBytesWrited,		// ????? ?????????? ??????
 		NULL				// ??????????? ?????
 	);

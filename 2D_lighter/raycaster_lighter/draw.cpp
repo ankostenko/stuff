@@ -155,9 +155,9 @@ inline void draw_triangle(Vec3f* pts, Color color, uint8_t mode = FULL)
 					Color out;
 					Color screen_pixel = getPixel(P.x, P.y);
 				
-					out.r = ((uint16_t)color.r + screen_pixel.r) % 255;
-					out.g = ((uint16_t)color.g + screen_pixel.g) % 255;
-					out.b = ((uint16_t)color.b + screen_pixel.b) % 255;
+					out.r = MIN(255, ((uint16_t)color.r + screen_pixel.r));
+					out.g = MIN(255, ((uint16_t)color.g + screen_pixel.g));
+					out.b = MIN(255, ((uint16_t)color.b + screen_pixel.b));
 					
 					drawPixel(P.x, P.y, out);
 				}
