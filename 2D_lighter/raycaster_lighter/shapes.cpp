@@ -42,11 +42,8 @@ inline void add_some_shapes(std::vector<Line>& lines)
 		make_shape(vert, 4, lines);
 	}
 
-<<<<<<< HEAD:raycaster_lighter/raycaster_lighter/shapes.cpp
-#if SMALL_SCREEN
-=======
+
 #if SCREEN_MODE == SMALL_SCREEN
->>>>>>> upstream/master:2D_lighter/raycaster_lighter/shapes.cpp
 	// shapes
 	{
 		Vec2f vert[] = { Vec2f(30, 30), Vec2f(130, 130), Vec2f(80, 130) };

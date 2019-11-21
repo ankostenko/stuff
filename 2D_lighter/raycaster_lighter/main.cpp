@@ -4,12 +4,6 @@
 #include <algorithm>
 #include <cstdint>
 
-<<<<<<< HEAD:raycaster_lighter/raycaster_lighter/main.cpp
-#define SMALL_SCREEN 0 // 320 320  ELSE 1200 720
-#define TRIANGLES 0 // ELSE LINES
-=======
->>>>>>> upstream/master:2D_lighter/raycaster_lighter/main.cpp
-
 // options ------------------------------------------------
 #define SMALL_SCREEN  0x00 // 400 x 400  ELSE 1200 x 720
 #define BIG_SCREEN  0x01
@@ -17,7 +11,7 @@
 #define LINES  0x00
 #define TRIANGLES  0x01
 
-#define SCREEN_MODE  SMALL_SCREEN  // CHANGE THIS PARAM TO THE BIG_SCREEN
+#define SCREEN_MODE SMALL_SCREEN  // CHANGE THIS PARAM TO THE BIG_SCREEN
 #define DRAW_MODE  TRIANGLES     // CHANGE TO LINES
 
 // draw defines  ------------------------------------------
@@ -103,15 +97,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 	RegisterClass(&window_class);
 
 	// create window
-<<<<<<< HEAD:raycaster_lighter/raycaster_lighter/main.cpp
-#if SMALL_SCREEN
-	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 320, 320, 0, 0, hInst, 0);
-#else
-=======
 #if SCREEN_MODE == SMALL_SCREEN
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter", WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 400, 400, 0, 0, hInst, 0);
 #elif SCREEN_MODE == BIG_SCREEN
->>>>>>> upstream/master:2D_lighter/raycaster_lighter/main.cpp
 	HWND window = CreateWindow(window_class.lpszClassName, "lighter",  WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInst, 0);
 #endif
 
@@ -342,12 +330,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 		for (Line line : shapes)
 			line.draw(Color(255, 255, 255));
 
-
-<<<<<<< HEAD:raycaster_lighter/raycaster_lighter/main.cpp
-		
-#if !(TRIANGLES)
-=======
-
 #if SCREEN_MODE == SMALL_SCREEN
 #if DRAW_MODE == LINES
 		// draw ray
@@ -387,7 +369,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPiv, LPSTR args, int someshit)
 #endif
 #elif SCREEN_MODE == BIG_SCREEN
 #if DRAW_MODE == LINES
->>>>>>> upstream/master:2D_lighter/raycaster_lighter/main.cpp
 		// draw ray
 		for (Line ray : rays)
 		{
