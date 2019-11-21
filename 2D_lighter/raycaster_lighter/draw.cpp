@@ -19,6 +19,16 @@ inline void drawPixel(int x, int y, Color color) {
 	surface.memory[y * surface.width + x] = color.whole;
 }
 
+inline Color getPixel(int x, int y) {
+	// cheker
+	x = MIN(x, surface.width - 1);
+	x = MAX(x, 0);
+	y = MIN(y, surface.height - 1);
+	y = MAX(y, 0);
+
+	return *(Color*)&surface.memory[y * surface.width + x];
+}
+
 
 inline void drawLine(int x, int y, int x2, int y2, Color color) {
 	bool yLonger = false;
@@ -110,7 +120,8 @@ inline void draw_filled_circle(int X, int Y, int radius, Color color)
 	}
 }
 
-inline void draw_triangle(Vec3f* pts, Color color)
+
+inline void draw_triangle(Vec3f* pts, Color color, uint8_t mode = FULL)
 {
 	if (pts[0].y == pts[1].y && pts[0].y == pts[2].y) return; // i don't care about degenerate triangles
 	if (pts[0].y > pts[1].y) { std::swap(pts[0], pts[1]); }
@@ -134,7 +145,23 @@ inline void draw_triangle(Vec3f* pts, Color color)
 		{
 			Vec3f bar;
 			if (barycentric(pts[0], pts[1], pts[2], P, &bar))
-				drawPixel(P.x, P.y, color);
+			{
+				if (mode == FULL)
+				{
+					drawPixel(P.x, P.y, color);
+				}
+				else if (mode == ADDITION)
+				{
+					Color out;
+					Color screen_pixel = getPixel(P.x, P.y);
+				
+					out.r = MIN(255, ((uint16_t)color.r + screen_pixel.r));
+					out.g = MIN(255, ((uint16_t)color.g + screen_pixel.g));
+					out.b = MIN(255, ((uint16_t)color.b + screen_pixel.b));
+					
+					drawPixel(P.x, P.y, out);
+				}
+			}
 		}
 	}
 }

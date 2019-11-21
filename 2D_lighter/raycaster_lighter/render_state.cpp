@@ -1,5 +1,4 @@
 #include  <Windows.h>
-#include <cstdint>
 
 struct Render_State {
 	int height, width;
@@ -25,10 +24,11 @@ struct Color
 {
 	union
 	{
-		struct { char b, g, r, a; };
-		char raw[4];
+		struct { uint8_t b, g, r, a; };
+		uint8_t raw[4];
 		uint32_t whole;
 	};
 
+	Color() : r(0), g(0), b(0), a(255) {}
 	Color(char r, char g, char b, char a = 255) : r(r), g(g), b(b) {}
 };
